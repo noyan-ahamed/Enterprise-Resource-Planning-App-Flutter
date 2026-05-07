@@ -73,6 +73,32 @@ class _SideNavState extends State<SideNav> {
                   ],
                 ),
 
+                // employee management
+                const SizedBox(height: 20),
+                _buildSectionLabel("EMPLOYEE MANAGEMENT"),
+
+                _buildExpansionTile(
+                  tileKey: "employee_management",
+                  icon: Icons.people_outline,
+                  title: "Employee Management",
+                  children: [
+                    _buildSubMenuItem(
+                      "Department",
+                          () => widget.onMenuSelect("department"),
+                    ),
+
+                    _buildSubMenuItem(
+                      "Designation",
+                          () => widget.onMenuSelect("designation"),
+                    ),
+
+                    _buildSubMenuItem(
+                      "Employee",
+                          () => widget.onMenuSelect("employee"),
+                    ),
+                  ],
+                ),
+
                 const SizedBox(height: 20),
                 _buildSectionLabel("FINANCE"),
 

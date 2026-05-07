@@ -1,5 +1,7 @@
 import 'package:enterprise_resource_planning/presentation/screens/category/product_category_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/dashboard_home.dart';
+import 'package:enterprise_resource_planning/presentation/screens/department/department_screen.dart';
+import 'package:enterprise_resource_planning/presentation/screens/designation/designation_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/supplier/supplier_screen.dart';
 import 'package:enterprise_resource_planning/presentation/widgets/side_nav.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,14 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
         return const SupplierScreen();
       case "category":
         return const ProductCategoryScreen();
+      case "department":
+        return const DepartmentScreen();
+
+      case "designation":
+        return const DesignationScreen();
+
+      case "employee":
+        // return const EmployeeScreen();
       default:
         return DashboardHome();
     }
@@ -34,6 +44,13 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
         return "Product Categories";
       case "products":
         return "Products";
+      case "department":
+        return "Departments";
+      case "designation":
+        return "Designations";
+
+      case "employee":
+        return "Employees";
       default:
         return "Dashboard Overview";
     }
