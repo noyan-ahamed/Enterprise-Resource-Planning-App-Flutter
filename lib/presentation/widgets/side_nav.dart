@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:enterprise_resource_planning/core/services/token_service.dart';
+import 'package:enterprise_resource_planning/data/models/user_model.dart';
+import 'package:enterprise_resource_planning/data/repositories/user_service.dart';
 import 'package:enterprise_resource_planning/presentation/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,6 +20,8 @@ class SideNav extends StatefulWidget {
 class _SideNavState extends State<SideNav> {
   // Track which tile is expanded
   String? _expandedTile;
+  UserModel? currentUser;
+  bool isLoading = true;
 
   void _onExpansionChanged(String tileKey, bool isExpanded) {
     setState(() {
@@ -28,6 +34,25 @@ class _SideNavState extends State<SideNav> {
       }
     });
   }
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadCurrentUser();
+  }
+
+  Future<void> loadCurrentUser() async {
+    final user = await UserService.getCurrentUser();
+
+    setState(() {
+      currentUser = user;
+      isLoading = false;
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +165,9 @@ class _SideNavState extends State<SideNav> {
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade100),
+        ),
       ),
       child: Row(
         children: [
@@ -148,29 +175,51 @@ class _SideNavState extends State<SideNav> {
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.2), width: 1),
+              border: Border.all(
+                color: const Color(0xFF6366F1).withOpacity(0.2),
+                width: 1,
+              ),
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 24,
-              backgroundColor: Color(0xFFF1F5F9),
-              child: Icon(Icons.person_outline_rounded, size: 28, color: Color(0xFF6366F1)),
+              backgroundColor: const Color(0xFFF1F5F9),
+              backgroundImage:
+              currentUser?.imageBase64 != null
+                  ? MemoryImage(
+                base64Decode(currentUser!.imageBase64!),
+              )
+                  : null,
+              child:
+              currentUser?.imageBase64 == null
+                  ? const Icon(
+                Icons.person_outline_rounded,
+                size: 28,
+                color: Color(0xFF6366F1),
+              )
+                  : null,
             ),
           ),
+
           const SizedBox(width: 12),
+
           Expanded(
-            child: Column(
+            child:
+            isLoading
+                ? const CircularProgressIndicator()
+                : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "System Admin",
+                  currentUser?.name ?? "Unknown User",
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: const Color(0xFF1E293B),
                   ),
                 ),
+
                 Text(
-                  "admin@nsync.com",
+                  currentUser?.email ?? "",
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: const Color(0xFF64748B),

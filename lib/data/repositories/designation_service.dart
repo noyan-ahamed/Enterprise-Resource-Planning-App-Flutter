@@ -9,20 +9,45 @@ class DesignationService {
 
   Future<List<DesignationModel>> getAllDesignations() async {
 
-    final response = await ApiClient.get(Uri.parse(baseUrl));
+    final response = await ApiClient.get(
+      Uri.parse(baseUrl),
+    );
 
     if(response.statusCode == 200){
 
       List data = jsonDecode(response.body);
 
-      return data.map((e) => DesignationModel.fromJson(e)).toList();
-
-    }else{
-      throw Exception("Failed to load designations");
+      return data
+          .map((e) => DesignationModel.fromJson(e))
+          .toList();
     }
+
+    throw Exception("Failed to load designations");
   }
 
-  Future<void> createDesignation(DesignationModel designation) async {
+  Future<List<DesignationModel>> getDesignationByDeptId(
+      int deptId,
+      ) async {
+
+    final response = await ApiClient.get(
+      Uri.parse("$baseUrl/by_dept_id/$deptId"),
+    );
+
+    if(response.statusCode == 200){
+
+      List data = jsonDecode(response.body);
+
+      return data
+          .map((e) => DesignationModel.fromJson(e))
+          .toList();
+    }
+
+    throw Exception("Failed to load designations");
+  }
+
+  Future<void> createDesignation(
+      DesignationModel designation,
+      ) async {
 
     final response = await ApiClient.post(
       Uri.parse(baseUrl),
@@ -34,7 +59,10 @@ class DesignationService {
     }
   }
 
-  Future<void> updateDesignation(int id, DesignationModel designation) async {
+  Future<void> updateDesignation(
+      int id,
+      DesignationModel designation,
+      ) async {
 
     final response = await ApiClient.put(
       Uri.parse("$baseUrl/$id"),

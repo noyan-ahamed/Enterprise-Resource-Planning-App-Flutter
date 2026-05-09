@@ -2,6 +2,7 @@ import 'package:enterprise_resource_planning/presentation/screens/category/produ
 import 'package:enterprise_resource_planning/presentation/screens/dashboard_home.dart';
 import 'package:enterprise_resource_planning/presentation/screens/department/department_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/designation/designation_screen.dart';
+import 'package:enterprise_resource_planning/presentation/screens/employee/employee_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/supplier/supplier_screen.dart';
 import 'package:enterprise_resource_planning/presentation/widgets/side_nav.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
         return const DesignationScreen();
 
       case "employee":
-        // return const EmployeeScreen();
+        return const EmployeeScreen();
       default:
         return DashboardHome();
     }
