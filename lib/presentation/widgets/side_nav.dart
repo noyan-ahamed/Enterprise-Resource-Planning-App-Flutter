@@ -121,7 +121,7 @@ class _SideNavState extends State<SideNav> {
                     ),
                     _buildSubMenuItem(
                       "Purchase Orders",
-                      () => widget.onMenuSelect("orders"),
+                      () => widget.onMenuSelect("purchase"),
                     ),
                   ],
                 ),

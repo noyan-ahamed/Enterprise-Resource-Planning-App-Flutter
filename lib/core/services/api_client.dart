@@ -29,9 +29,9 @@ class ApiClient {
   }
 
   static Future<http.Response> post(
-      Uri uri,
-      String body,
-      ) async {
+      Uri uri, [
+        String? body,
+      ]) async {
 
     final response = await http.post(
       uri,
@@ -45,9 +45,9 @@ class ApiClient {
   }
 
   static Future<http.Response> put(
-      Uri uri,
-      String body,
-      ) async {
+      Uri uri, [
+        String? body,
+      ]) async {
 
     final response = await http.put(
       uri,

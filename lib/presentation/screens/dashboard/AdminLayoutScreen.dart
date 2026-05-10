@@ -1,4 +1,5 @@
 import 'package:enterprise_resource_planning/core/services/token_service.dart';
+import 'package:enterprise_resource_planning/presentation/purchase/purchase_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/category/product_category_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/dashboard_home.dart';
 import 'package:enterprise_resource_planning/presentation/screens/department/department_screen.dart';
@@ -61,7 +62,8 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
       "designation",
       "suppliers",
       "category",
-      "products"
+      "products",
+      "purchase"
     ];
 
     // other user trying to access admin pages
@@ -90,6 +92,8 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
 
       case "employee":
         return const EmployeeScreen();
+      case "purchase":
+        return const PurchaseScreen();
 
     // for employee
       case "new_sale":
@@ -113,6 +117,8 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
         return "Departments";
       case "designation":
         return "Designations";
+      case "purchase":
+        return "Purchase Order";
 
       case "employee":
         return "Employees";
