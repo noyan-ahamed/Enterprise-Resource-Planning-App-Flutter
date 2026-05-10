@@ -22,6 +22,7 @@ class _SideNavState extends State<SideNav> {
   String? _expandedTile;
   UserModel? currentUser;
   bool isLoading = true;
+  List<String> roles = [];
 
   void _onExpansionChanged(String tileKey, bool isExpanded) {
     setState(() {
@@ -35,7 +36,6 @@ class _SideNavState extends State<SideNav> {
     });
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -44,15 +44,28 @@ class _SideNavState extends State<SideNav> {
   }
 
   Future<void> loadCurrentUser() async {
-    final user = await UserService.getCurrentUser();
+    final userJson =
+    await TokenService.getUser();
+
+    if(userJson != null){
+
+      currentUser =
+          UserModel.fromJson(
+            jsonDecode(userJson),
+          );
+    }
+    final savedRoles = await TokenService.getRoles();
 
     setState(() {
-      currentUser = user;
+      currentUser;
+      roles = savedRoles;
       isLoading = false;
     });
   }
 
+  bool isAdmin() => roles.contains("ADMIN");
 
+  bool isEmployee() => roles.contains("EMPLOYEE");
 
   @override
   Widget build(BuildContext context) {
@@ -67,34 +80,49 @@ class _SideNavState extends State<SideNav> {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+
               children: [
+                if (isAdmin()) ...[
                 _buildMenuItem(
                   icon: Icons.dashboard_outlined,
                   activeIcon: Icons.dashboard_rounded,
                   title: "Dashboard",
                   onTap: () => widget.onMenuSelect("dashboard"),
                 ),
-                
+
                 const SizedBox(height: 20),
                 _buildSectionLabel("MAIN MENU"),
-                
-                _buildExpansionTile(
-                  tileKey: "inventory",
-                  icon: Icons.inventory_2_outlined,
-                  title: "Inventory",
-                  children: [
-                    _buildSubMenuItem("Product List", () => widget.onMenuSelect("products")),
-                    _buildSubMenuItem("Categories", () => widget.onMenuSelect("category")),
-                  ],
-                ),
+
+
+                  _buildExpansionTile(
+                    tileKey: "inventory",
+                    icon: Icons.inventory_2_outlined,
+                    title: "Inventory",
+                    children: [
+                      _buildSubMenuItem(
+                        "Product List",
+                        () => widget.onMenuSelect("products"),
+                      ),
+                      _buildSubMenuItem(
+                        "Categories",
+                        () => widget.onMenuSelect("category"),
+                      ),
+                    ],
+                  ),
 
                 _buildExpansionTile(
                   tileKey: "purchase",
                   icon: Icons.shopping_bag_outlined,
                   title: "Purchase",
                   children: [
-                    _buildSubMenuItem("Suppliers", () => widget.onMenuSelect("suppliers")),
-                    _buildSubMenuItem("Purchase Orders", () => widget.onMenuSelect("orders")),
+                    _buildSubMenuItem(
+                      "Suppliers",
+                      () => widget.onMenuSelect("suppliers"),
+                    ),
+                    _buildSubMenuItem(
+                      "Purchase Orders",
+                      () => widget.onMenuSelect("orders"),
+                    ),
                   ],
                 ),
 
@@ -109,17 +137,17 @@ class _SideNavState extends State<SideNav> {
                   children: [
                     _buildSubMenuItem(
                       "Department",
-                          () => widget.onMenuSelect("department"),
+                      () => widget.onMenuSelect("department"),
                     ),
 
                     _buildSubMenuItem(
                       "Designation",
-                          () => widget.onMenuSelect("designation"),
+                      () => widget.onMenuSelect("designation"),
                     ),
 
                     _buildSubMenuItem(
                       "Employee",
-                          () => widget.onMenuSelect("employee"),
+                      () => widget.onMenuSelect("employee"),
                     ),
                   ],
                 ),
@@ -136,6 +164,33 @@ class _SideNavState extends State<SideNav> {
                     _buildSubMenuItem("Reports", () {}),
                   ],
                 ),
+                ],
+
+
+                //employee
+                if(isEmployee())...[
+                _buildExpansionTile(
+                  tileKey: "sales",
+                  icon: Icons.point_of_sale_outlined,
+                  title: "Sales",
+                  children: [
+                    _buildSubMenuItem(
+                      "New Sale Entry",
+                          () => widget.onMenuSelect("new_sale"),
+                    ),
+                    _buildSubMenuItem(
+                      "Sales History",
+                          () => widget.onMenuSelect("sales_history"),
+                    ),
+                    _buildSubMenuItem(
+                      "Submit Payment",
+                          () => widget.onMenuSelect("submit_payment"),
+                    ),
+                  ],
+                ),
+                ],
+
+
 
                 const Divider(height: 40, thickness: 0.5),
 
@@ -144,7 +199,7 @@ class _SideNavState extends State<SideNav> {
                   title: "Settings",
                   onTap: () {},
                 ),
-                
+
                 _buildMenuItem(
                   icon: Icons.logout_rounded,
                   title: "Logout",
@@ -165,9 +220,7 @@ class _SideNavState extends State<SideNav> {
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
       ),
       child: Row(
         children: [
@@ -183,19 +236,15 @@ class _SideNavState extends State<SideNav> {
             child: CircleAvatar(
               radius: 24,
               backgroundColor: const Color(0xFFF1F5F9),
-              backgroundImage:
-              currentUser?.imageBase64 != null
-                  ? MemoryImage(
-                base64Decode(currentUser!.imageBase64!),
-              )
+              backgroundImage: currentUser?.imageBase64 != null
+                  ? MemoryImage(base64Decode(currentUser!.imageBase64!))
                   : null,
-              child:
-              currentUser?.imageBase64 == null
+              child: currentUser?.imageBase64 == null
                   ? const Icon(
-                Icons.person_outline_rounded,
-                size: 28,
-                color: Color(0xFF6366F1),
-              )
+                      Icons.person_outline_rounded,
+                      size: 28,
+                      color: Color(0xFF6366F1),
+                    )
                   : null,
             ),
           ),
@@ -203,30 +252,29 @@ class _SideNavState extends State<SideNav> {
           const SizedBox(width: 12),
 
           Expanded(
-            child:
-            isLoading
+            child: isLoading
                 ? const CircularProgressIndicator()
                 : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  currentUser?.name ?? "Unknown User",
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: const Color(0xFF1E293B),
-                  ),
-                ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        currentUser?.name ?? "Unknown User",
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: const Color(0xFF1E293B),
+                        ),
+                      ),
 
-                Text(
-                  currentUser?.email ?? "",
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: const Color(0xFF64748B),
+                      Text(
+                        currentUser?.email ?? "",
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -295,14 +343,18 @@ class _SideNavState extends State<SideNav> {
     required List<Widget> children,
   }) {
     final bool isExpanded = _expandedTile == tileKey;
-    final Color color = isExpanded ? const Color(0xFF6366F1) : const Color(0xFF475569);
+    final Color color = isExpanded
+        ? const Color(0xFF6366F1)
+        : const Color(0xFF475569);
 
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
-        key: Key(tileKey + isExpanded.toString()), // Force rebuild to update expansion state
+        key: Key(tileKey + isExpanded.toString()),
+        // Force rebuild to update expansion state
         initiallyExpanded: isExpanded,
-        onExpansionChanged: (expanded) => _onExpansionChanged(tileKey, expanded),
+        onExpansionChanged: (expanded) =>
+            _onExpansionChanged(tileKey, expanded),
         leading: Icon(icon, color: color, size: 22),
         title: Text(
           title,
@@ -313,7 +365,9 @@ class _SideNavState extends State<SideNav> {
           ),
         ),
         trailing: Icon(
-          isExpanded ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_right_rounded,
+          isExpanded
+              ? Icons.keyboard_arrow_down_rounded
+              : Icons.keyboard_arrow_right_rounded,
           size: 18,
           color: color,
         ),
@@ -322,7 +376,6 @@ class _SideNavState extends State<SideNav> {
     );
   }
 }
-
 
 void _handleLogout(BuildContext context) async {
   QuickAlert.show(
@@ -338,7 +391,7 @@ void _handleLogout(BuildContext context) async {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
-            (route) => false,
+        (route) => false,
       );
     },
   );

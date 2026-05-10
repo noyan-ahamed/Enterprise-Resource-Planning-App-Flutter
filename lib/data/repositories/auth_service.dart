@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:enterprise_resource_planning/core/services/token_service.dart';
 import 'package:enterprise_resource_planning/data/models/auth_response_model.dart';
 import 'package:enterprise_resource_planning/data/models/login_request_model.dart';
+import 'package:enterprise_resource_planning/data/repositories/user_service.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
@@ -30,11 +31,23 @@ class AuthService {
       final authResponse =
       AuthResponseModel.fromJson(data);
 
-      /// SAVE TOKEN
+      //save token
       await TokenService.saveToken(authResponse.token);
 
-      /// SAVE ROLE
+      //save role
       await TokenService.saveRoles(authResponse.roles);
+
+      //get current user
+      final user =
+      await UserService.getCurrentUser();
+
+      //save user locally
+      if (user != null) {
+
+        await TokenService.saveUser(
+          jsonEncode(user.toJson()),
+        );
+      }
 
       return authResponse;
 
@@ -42,4 +55,5 @@ class AuthService {
       throw Exception("Invalid username or password");
     }
   }
+
 }

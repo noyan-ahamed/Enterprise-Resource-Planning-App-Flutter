@@ -28,4 +28,16 @@ class UserModel {
       createdAt: json['createdAt'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "username": username,
+      "email": email,
+      "imageBase64": imageBase64,
+      "imageType": imageType,
+      "status": status,
+      "createdAt": createdAt,
+    };
+  }
 }

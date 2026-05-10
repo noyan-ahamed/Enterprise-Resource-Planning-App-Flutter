@@ -1,3 +1,4 @@
+import 'package:enterprise_resource_planning/core/services/token_service.dart';
 import 'package:enterprise_resource_planning/presentation/screens/category/product_category_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/dashboard_home.dart';
 import 'package:enterprise_resource_planning/presentation/screens/department/department_screen.dart';
@@ -16,9 +17,62 @@ class AdminLayoutScreen extends StatefulWidget {
 }
 
 class _AdminLayoutScreen extends State<AdminLayoutScreen> {
-  String selectedMenu = "dashboard";
+  List<String> roles = [];
+  bool loadingRoles = true;
+
+  String selectedMenu = "";
+  // String selectedMenu = "dashboard";
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadRoles();
+  }
+  Future<void> loadRoles() async {
+
+    final savedRoles =
+    await TokenService.getRoles();
+
+    String defaultMenu = "dashboard";
+
+    if(savedRoles.contains("EMPLOYEE")){
+      defaultMenu = "new_sale";
+    }
+
+    setState(() {
+      roles = savedRoles;
+      selectedMenu = defaultMenu;
+      loadingRoles = false;
+    });
+  }
+  //helper
+  bool isAdmin() => roles.contains("ADMIN");
+
+  bool isEmployee() => roles.contains("EMPLOYEE");
+
 
   Widget getScreen() {
+    //admin pages for security
+    final adminOnlyMenus = [
+      "employee",
+      "department",
+      "designation",
+      "suppliers",
+      "category",
+    ];
+
+    // other user trying to access admin pages
+    if (
+    adminOnlyMenus.contains(selectedMenu)
+        &&
+        !isAdmin()
+    ) {
+
+      return const Center(
+        child: Text("Access Denied"),
+      );
+    }
     switch (selectedMenu) {
       case "suppliers":
         return const SupplierScreen();
@@ -32,6 +86,12 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
 
       case "employee":
         return const EmployeeScreen();
+
+    // for employee
+      case "new_sale":
+        return const Center(
+          child: Text("New Sale Entry Page"),
+        );
       default:
         return DashboardHome();
     }

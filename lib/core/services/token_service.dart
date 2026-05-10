@@ -4,43 +4,44 @@ import 'package:shared_preferences/shared_preferences.dart';
 class TokenService {
   static const String tokenKey = "jwt_token";
   static const String roleKey = "user_roles";
+  static const String userKey = "current_user";
 
-  /// SAVE TOKEN
+  //save token
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(tokenKey, token);
   }
 
-  /// GET TOKEN
+  // get token
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
 
     return prefs.getString(tokenKey);
   }
 
-  /// SAVE ROLES
+  // save role
   static Future<void> saveRoles(List<String> roles) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setStringList(roleKey, roles);
   }
 
-  /// GET ROLES
+  // get role
   static Future<List<String>> getRoles() async {
     final prefs = await SharedPreferences.getInstance();
 
     return prefs.getStringList(roleKey) ?? [];
   }
 
-  /// CLEAR
+  // delete token
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.clear();
   }
 
-  /// CHECK LOGIN
+  // check login
   static Future<bool> isLoggedIn() async {
     final token = await getToken();
 
@@ -48,7 +49,7 @@ class TokenService {
       return false;
     }
 
-    /// CHECK EXPIRED
+    // check is token expired
     bool isExpired = JwtDecoder.isExpired(token);
 
     if (isExpired) {
@@ -58,5 +59,23 @@ class TokenService {
     }
 
     return true;
+  }
+
+  // save current user
+  static Future<void> saveUser(String userJson) async {
+
+    final prefs =
+    await SharedPreferences.getInstance();
+
+    await prefs.setString(userKey, userJson);
+  }
+
+  // get current user
+  static Future<String?> getUser() async {
+
+    final prefs =
+    await SharedPreferences.getInstance();
+
+    return prefs.getString(userKey);
   }
 }
