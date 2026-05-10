@@ -9,43 +9,58 @@ import 'package:quickalert/quickalert.dart';
 class EmployeeDialog extends StatefulWidget {
 
   final EmployeeModel? employee;
-  final VoidCallback onSuccess;
 
   const EmployeeDialog({
     super.key,
     this.employee,
-    required this.onSuccess,
   });
 
   @override
-  State<EmployeeDialog> createState() => _EmployeeDialogState();
+  State<EmployeeDialog> createState() =>
+      _EmployeeDialogState();
 }
 
-class _EmployeeDialogState extends State<EmployeeDialog> {
+class _EmployeeDialogState
+    extends State<EmployeeDialog> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final mobileController = TextEditingController();
-  final addressController = TextEditingController();
-  final salaryController = TextEditingController();
-  final joiningDateController = TextEditingController();
+  final nameController =
+  TextEditingController();
 
-  final EmployeeService employeeService = EmployeeService();
-  final DesignationService designationService = DesignationService();
+  final emailController =
+  TextEditingController();
+
+  final mobileController =
+  TextEditingController();
+
+  final addressController =
+  TextEditingController();
+
+  final salaryController =
+  TextEditingController();
+
+  final joiningDateController =
+  TextEditingController();
+
+  final EmployeeService employeeService =
+  EmployeeService();
+
+  final DesignationService
+  designationService =
+  DesignationService();
 
   List<DesignationModel> designations = [];
 
   DesignationModel? selectedDesignation;
 
   String selectedRole = "EMPLOYEE";
-  DateTime? selectedJoiningDate;
 
   bool loading = false;
 
   @override
   void initState() {
+
     super.initState();
 
     loadDesignations();
@@ -55,12 +70,24 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       final e = widget.employee!;
 
       nameController.text = e.name;
+
       emailController.text = e.email;
-      mobileController.text = e.mobileNumber;
-      addressController.text = e.address;
-      salaryController.text = e.basicSalary.toString();
-      joiningDateController.text = e.joiningDate;
-      selectedRole = widget.employee?.role ?? "EMPLOYEE";
+
+      mobileController.text =
+          e.mobileNumber;
+
+      addressController.text =
+          e.address;
+
+      salaryController.text =
+          e.basicSalary.toString();
+
+      joiningDateController.text =
+          e.joiningDate;
+
+      selectedRole =
+          widget.employee?.role ??
+              "EMPLOYEE";
     }
   }
 
@@ -69,17 +96,23 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
     try {
 
       final data =
-      await designationService.getAllDesignations();
+      await designationService
+          .getAllDesignations();
 
       setState(() {
+
         designations = data;
       });
 
       if(widget.employee != null){
 
-        selectedDesignation = designations.firstWhere(
-              (d) => d.id == widget.employee!.designation['id'],
-        );
+        selectedDesignation =
+            designations.firstWhere(
+                  (d) =>
+              d.id ==
+                  widget.employee!
+                      .designation['id'],
+            );
 
         setState(() {});
       }
@@ -92,14 +125,18 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
   Future<void> saveEmployee() async {
 
-    if(!_formKey.currentState!.validate()) return;
+    if(!_formKey.currentState!
+        .validate()) {
+      return;
+    }
 
     if(selectedDesignation == null){
 
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
-        text: "Please select designation",
+        text:
+        "Please select designation",
       );
 
       return;
@@ -119,14 +156,17 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       id: widget.employee?.id,
 
-      name: nameController.text.trim(),
+      name:
+      nameController.text.trim(),
 
-      email: emailController.text.trim(),
+      email:
+      emailController.text.trim(),
 
       mobileNumber:
       mobileController.text.trim(),
 
-      address: addressController.text.trim(),
+      address:
+      addressController.text.trim(),
 
       basicSalary:
       double.parse(
@@ -136,7 +176,8 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       joiningDate:
       joiningDateController.text,
 
-      designation: selectedDesignation!,
+      designation:
+      selectedDesignation!,
 
       role: selectedRole,
     );
@@ -145,14 +186,16 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
       if(widget.employee == null){
 
-        await employeeService.createEmployee(
+        await employeeService
+            .createEmployee(
           employee,
           selectedRole,
         );
 
-      }else{
+      } else {
 
-        await employeeService.updateEmployee(
+        await employeeService
+            .updateEmployee(
           widget.employee!.id!,
           employee,
         );
@@ -162,15 +205,16 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
 
         Navigator.pop(context);
 
+        Navigator.pop(context, true);
+
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          text: widget.employee == null
+          text:
+          widget.employee == null
               ? "Employee created successfully!"
               : "Employee updated successfully!",
         );
-
-        widget.onSuccess();
       }
 
     } catch(e){
@@ -188,7 +232,8 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
   }
 
   Widget buildField({
-    required TextEditingController controller,
+    required TextEditingController
+    controller,
     required String label,
     required IconData icon,
     TextInputType? keyboardType,
@@ -196,13 +241,18 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
   }) {
 
     return TextFormField(
+
       controller: controller,
+
       keyboardType: keyboardType,
+
       maxLines: maxLines,
 
       validator: (v){
 
-        if(v == null || v.trim().isEmpty){
+        if(v == null ||
+            v.trim().isEmpty){
+
           return "Required";
         }
 
@@ -210,15 +260,18 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
       },
 
       decoration: InputDecoration(
+
         labelText: label,
 
         prefixIcon: Icon(
           icon,
-          color: const Color(0xFF6366F1),
+          color: const Color(
+              0xFF6366F1),
         ),
 
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius:
+          BorderRadius.circular(12),
         ),
       ),
     );
@@ -227,234 +280,377 @@ class _EmployeeDialogState extends State<EmployeeDialog> {
   @override
   Widget build(BuildContext context) {
 
-    return Card(
-      elevation: 5,
-
-      shadowColor: Colors.black12,
+    return Dialog(
 
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+        BorderRadius.circular(20),
       ),
 
       child: Padding(
+
         padding: const EdgeInsets.all(20),
 
         child: Form(
+
           key: _formKey,
 
-          child: Column(
-            children: [
+          child: SingleChildScrollView(
 
-              buildField(
-                controller: nameController,
-                label: "Employee Name",
-                icon: Icons.person_outline,
-              ),
+            child: Column(
 
-              const SizedBox(height: 16),
+              mainAxisSize: MainAxisSize.min,
 
-              buildField(
-                controller: emailController,
-                label: "Email",
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-              ),
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
 
-              const SizedBox(height: 16),
+              children: [
 
-              buildField(
-                controller: mobileController,
-                label: "Mobile",
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-              ),
+                Row(
 
-              const SizedBox(height: 16),
+                  mainAxisAlignment:
+                  MainAxisAlignment
+                      .spaceBetween,
 
-              DropdownButtonFormField<DesignationModel>(
+                  children: [
 
-                value: selectedDesignation,
+                    Text(
 
-                items: designations.map((d){
+                      widget.employee == null
+                          ? "Add Employee"
+                          : "Edit Employee",
 
-                  return DropdownMenuItem(
-                    value: d,
-                    child: Text(d.name),
-                  );
+                      style:
+                      GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight:
+                        FontWeight.bold,
+                      ),
+                    ),
 
-                }).toList(),
+                    IconButton(
 
-                onChanged: (v){
+                      onPressed: () {
+                        Navigator.pop(
+                            context);
+                      },
 
-                  setState(() {
-                    selectedDesignation = v;
-                  });
-                },
-
-                validator: (v) {
-
-                  if(v == null){
-                    return "Select designation";
-                  }
-
-                  return null;
-                },
-
-                decoration: InputDecoration(
-                  labelText: "Designation",
-
-                  prefixIcon: const Icon(
-                    Icons.badge_outlined,
-                    color: Color(0xFF6366F1),
-                  ),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                      icon: const Icon(
+                        Icons.close,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const Divider(),
 
-              buildField(
-                controller: salaryController,
-                label: "Salary",
-                icon: Icons.currency_exchange,
-                keyboardType: TextInputType.number,
-              ),
+                const SizedBox(height: 20),
 
-              if(widget.employee == null) ...[
+                buildField(
+                  controller:
+                  nameController,
+                  label:
+                  "Employee Name",
+                  icon:
+                  Icons.person_outline,
+                ),
 
                 const SizedBox(height: 16),
 
-                DropdownButtonFormField<String>(
+                buildField(
+                  controller:
+                  emailController,
+                  label: "Email",
+                  icon:
+                  Icons.email_outlined,
+                  keyboardType:
+                  TextInputType
+                      .emailAddress,
+                ),
 
-                  value: selectedRole,
+                const SizedBox(height: 16),
 
-                  items: const [
+                buildField(
+                  controller:
+                  mobileController,
+                  label: "Mobile",
+                  icon:
+                  Icons.phone_outlined,
+                  keyboardType:
+                  TextInputType.phone,
+                ),
 
-                    DropdownMenuItem(
-                      value: "EMPLOYEE",
-                      child: Text("Employee"),
-                    ),
+                const SizedBox(height: 16),
 
-                    DropdownMenuItem(
-                      value: "HR",
-                      child: Text("HR"),
-                    ),
-                  ],
+                DropdownButtonFormField<
+                    DesignationModel>(
+
+                  value:
+                  selectedDesignation,
+
+                  items:
+                  designations.map((d){
+
+                    return DropdownMenuItem(
+                      value: d,
+                      child: Text(d.name),
+                    );
+
+                  }).toList(),
 
                   onChanged: (v){
 
                     setState(() {
-                      selectedRole = v!;
+
+                      selectedDesignation =
+                          v;
                     });
                   },
 
-                  decoration: InputDecoration(
-                    labelText: "Role",
+                  validator: (v){
 
-                    prefixIcon: const Icon(
-                      Icons.admin_panel_settings_outlined,
-                      color: Color(0xFF6366F1),
+                    if(v == null){
+
+                      return
+                        "Select designation";
+                    }
+
+                    return null;
+                  },
+
+                  decoration:
+                  InputDecoration(
+
+                    labelText:
+                    "Designation",
+
+                    prefixIcon:
+                    const Icon(
+                      Icons
+                          .badge_outlined,
+                      color: Color(
+                          0xFF6366F1),
                     ),
 
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    border:
+                    OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius
+                          .circular(
+                          12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                buildField(
+                  controller:
+                  salaryController,
+                  label: "Salary",
+                  icon: Icons
+                      .currency_exchange,
+                  keyboardType:
+                  TextInputType.number,
+                ),
+
+                if(widget.employee ==
+                    null) ...[
+
+                  const SizedBox(
+                      height: 16),
+
+                  DropdownButtonFormField<
+                      String>(
+
+                    value: selectedRole,
+
+                    items: const [
+
+                      DropdownMenuItem(
+                        value:
+                        "EMPLOYEE",
+                        child: Text(
+                            "Employee"),
+                      ),
+
+                      DropdownMenuItem(
+                        value: "HR",
+                        child:
+                        Text("HR"),
+                      ),
+                    ],
+
+                    onChanged: (v){
+
+                      setState(() {
+
+                        selectedRole =
+                        v!;
+                      });
+                    },
+
+                    decoration:
+                    InputDecoration(
+
+                      labelText:
+                      "Role",
+
+                      prefixIcon:
+                      const Icon(
+                        Icons
+                            .admin_panel_settings_outlined,
+                        color: Color(
+                            0xFF6366F1),
+                      ),
+
+                      border:
+                      OutlineInputBorder(
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                            12),
+                      ),
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+
+                TextFormField(
+
+                  controller:
+                  joiningDateController,
+
+                  readOnly: true,
+
+                  validator: (v){
+
+                    if(v == null ||
+                        v.isEmpty){
+
+                      return
+                        "Select joining date";
+                    }
+
+                    return null;
+                  },
+
+                  onTap: () async {
+
+                    final pickedDate =
+                    await showDatePicker(
+
+                      context: context,
+
+                      initialDate:
+                      DateTime.now(),
+
+                      firstDate:
+                      DateTime(2000),
+
+                      lastDate:
+                      DateTime(2100),
+                    );
+
+                    if(pickedDate !=
+                        null){
+
+                      joiningDateController
+                          .text =
+                      pickedDate
+                          .toString()
+                          .split(
+                          " ")[0];
+
+                      setState(() {});
+                    }
+                  },
+
+                  decoration:
+                  InputDecoration(
+
+                    labelText:
+                    "Joining Date",
+
+                    prefixIcon:
+                    const Icon(
+                      Icons
+                          .calendar_month_outlined,
+                      color: Color(
+                          0xFF6366F1),
+                    ),
+
+                    border:
+                    OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius
+                          .circular(
+                          12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                buildField(
+                  controller:
+                  addressController,
+                  label: "Address",
+                  icon: Icons
+                      .location_on_outlined,
+                  maxLines: 2,
+                ),
+
+                const SizedBox(height: 24),
+
+                SizedBox(
+
+                  width: double.infinity,
+                  height: 50,
+
+                  child: ElevatedButton(
+
+                    onPressed: loading
+                        ? null
+                        : saveEmployee,
+
+                    style:
+                    ElevatedButton.styleFrom(
+
+                      backgroundColor:
+                      const Color(
+                          0xFF6366F1),
+
+                      shape:
+                      RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                            12),
+                      ),
+                    ),
+
+                    child: Text(
+
+                      widget.employee ==
+                          null
+                          ? "Save Employee"
+                          : "Update Employee",
+
+                      style:
+                      GoogleFonts.poppins(
+                        color:
+                        Colors.white,
+                        fontWeight:
+                        FontWeight
+                            .bold,
+                      ),
                     ),
                   ),
                 ),
               ],
-
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: joiningDateController,
-                readOnly: true,
-
-                validator: (v){
-
-                  if(v == null || v.isEmpty){
-                    return "Select joining date";
-                  }
-
-                  return null;
-                },
-
-                onTap: () async {
-
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-
-                  if(pickedDate != null){
-
-                    joiningDateController.text =
-                    pickedDate.toString().split(" ")[0];
-
-                    setState(() {});
-                  }
-                },
-
-                decoration: InputDecoration(
-                  labelText: "Joining Date",
-
-                  prefixIcon: const Icon(
-                    Icons.calendar_month_outlined,
-                    color: Color(0xFF6366F1),
-                  ),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              buildField(
-                controller: addressController,
-                label: "Address",
-                icon: Icons.location_on_outlined,
-                maxLines: 2,
-              ),
-
-              const SizedBox(height: 20),
-
-              SizedBox(
-                width: double.infinity,
-                height: 45,
-
-                child: ElevatedButton(
-
-                  onPressed: loading
-                      ? null
-                      : saveEmployee,
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-
-                  child: Text(
-                    widget.employee == null
-                        ? "Save Employee"
-                        : "Update Employee",
-
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

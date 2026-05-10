@@ -13,7 +13,7 @@ class ProductCategory {
     this.productCount,
   });
 
-  /// FROM JSON
+  //from json
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
     return ProductCategory(
       id: json['id'],
@@ -24,7 +24,7 @@ class ProductCategory {
     );
   }
 
-  /// TO JSON (POST/PUT)
+  //to json post or put
   Map<String, dynamic> toJson() {
     return {
       "name": name,

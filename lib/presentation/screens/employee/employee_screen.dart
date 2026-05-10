@@ -22,16 +22,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   bool loading = true;
 
-  bool showForm = false;
-
-  EmployeeModel? selectedEmployee;
-
   final searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
     loadEmployees();
   }
 
@@ -66,11 +61,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
       }).toList();
     });
-  }
-
-  void resetForm(){
-
-    selectedEmployee = null;
   }
 
   Future<void> deleteEmployee(int id) async {
@@ -119,49 +109,68 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  void onEdit(EmployeeModel employee){
-
-    setState(() {
-      showForm = true;
-      selectedEmployee = employee;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+
       backgroundColor: const Color(0xFFF8FAFC),
+
       body: RefreshIndicator(
+
         onRefresh: loadEmployees,
+
         color: const Color(0xFF6366F1),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+
+        child: Column(
+
+          children: [
+
+            Container(
+
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 20,
+              ),
+
+              color: Colors.white,
+
+              child: Row(
+
                 children: [
+
                   Expanded(
+
                     flex: 3,
+
                     child: TextField(
+
                       controller: searchController,
+
                       onChanged: search,
+
                       decoration: InputDecoration(
+
                         hintText: "Search employee...",
+
                         prefixIcon: const Icon(
                           Icons.search,
                           size: 20,
                           color: Color(0xFF6366F1),
                         ),
+
                         filled: true,
+
                         fillColor: const Color(0xFFF1F5F9),
+
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
 
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        contentPadding:
+                        const EdgeInsets.symmetric(vertical: 0),
+
                         hintStyle: GoogleFonts.inter(
                           fontSize: 14,
                           color: Colors.grey,
@@ -173,70 +182,60 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   const SizedBox(width: 12),
 
                   Expanded(
+
                     flex: 1,
 
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          showForm = !showForm;
-                          if(!showForm){
-                            resetForm();
-                          }
-                        });
+
+                      onPressed: () async {
+
+                        final result = await showDialog(
+
+                          context: context,
+
+                          builder: (_) => EmployeeDialog(),
+                        );
+
+                        if(result == true){
+                          loadEmployees();
+                        }
                       },
 
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: showForm
-                            ? Colors.grey
-                            : const Color(0xFF6366F1),
 
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor:
+                        const Color(0xFF6366F1),
+
+                        foregroundColor: Colors.white,
+
+                        elevation: 0,
+
+                        padding:
+                        const EdgeInsets.symmetric(vertical: 14),
 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
 
-                      icon: Icon(
-                        showForm ? Icons.close : Icons.add,
+                      icon: const Icon(
+                        Icons.add,
                         color: Colors.white,
                       ),
 
-                      label: Text(
-                        showForm ? "Cancel" : "Add New",
-
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
+                      label: const Text(
+                        "Add New",
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
                 ],
               ),
+            ),
 
-              const SizedBox(height: 20),
+            Expanded(
 
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-
-                child: showForm
-                    ? EmployeeDialog(
-                  employee: selectedEmployee,
-                  onSuccess: () {
-                    resetForm();
-                    setState(() {
-                      showForm = false;
-                    });
-
-                    loadEmployees();
-                  },
-                )
-                    : const SizedBox.shrink(),
-              ),
-
-              const SizedBox(height: 20),
-
-              loading && employees.isEmpty
+              child: loading
 
                   ? const Center(
                 child: CircularProgressIndicator(
@@ -247,24 +246,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   : filtered.isEmpty
 
                   ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50),
-
-                  child: Text(
-                    "No employees found",
-
-                    style: GoogleFonts.inter(
-                      color: Colors.grey,
-                    ),
+                child: Text(
+                  "No employees found",
+                  style: GoogleFonts.inter(
+                    color: Colors.grey,
                   ),
                 ),
               )
 
                   : ListView.builder(
 
-                shrinkWrap: true,
-
-                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
 
                 itemCount: filtered.length,
 
@@ -277,6 +269,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
 
                     decoration: BoxDecoration(
+
                       color: Colors.white,
 
                       borderRadius: BorderRadius.circular(16),
@@ -300,12 +293,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                         );
                       },
 
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding:
+                      const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 4,
                       ),
 
                       leading: Container(
+
                         width: 48,
                         height: 48,
 
@@ -349,23 +344,38 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       ),
 
                       trailing: Row(
+
                         mainAxisSize: MainAxisSize.min,
 
                         children: [
 
                           IconButton(
+
                             icon: const Icon(
                               Icons.edit_outlined,
                               color: Color(0xFF64748B),
                               size: 20,
                             ),
 
-                            onPressed: (){
-                              onEdit(e);
+                            onPressed: () async {
+
+                              final result = await showDialog(
+
+                                context: context,
+
+                                builder: (_) => EmployeeDialog(
+                                  employee: e,
+                                ),
+                              );
+
+                              if(result == true){
+                                loadEmployees();
+                              }
                             },
                           ),
 
                           IconButton(
+
                             icon: const Icon(
                               Icons.delete_outline_rounded,
                               color: Colors.redAccent,
@@ -382,8 +392,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   );
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -18,6 +18,7 @@ class _SupplierScreenState extends State<SupplierScreen> {
   List<SupplierModel> suppliers = [];
   List<SupplierModel> filtered = [];
   bool isLoading = true;
+  bool showForm = false;
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -111,22 +112,61 @@ class _SupplierScreenState extends State<SupplierScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Add Button (1/4)
+                  // Add Button
                   Expanded(
                     flex: 1,
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
+
                       onPressed: () async {
-                        final result = await showDialog(context: context, builder: (_) => const SupplierDialog());
-                        if (result == true) loadSuppliers();
+
+                        setState(() {
+                          showForm = true;
+                        });
+
+                        final result = await showDialog(
+                          context: context,
+                          builder: (_) => const SupplierDialog(),
+                        );
+
+                        setState(() {
+                          showForm = false;
+                        });
+
+                        if(result == true){
+                          loadSuppliers();
+                        }
                       },
+
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
+
+                        backgroundColor: showForm
+                            ? Colors.grey
+                            : const Color(0xFF6366F1),
+
                         foregroundColor: Colors.white,
+
                         elevation: 0,
+
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Icon(Icons.add),
+
+                      icon: Icon(
+                        showForm ? Icons.close : Icons.add,
+                        color: Colors.white,
+                      ),
+
+                      label: Text(
+                        showForm ? "Close" : "Add New",
+
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ],
