@@ -160,8 +160,9 @@ class _SideNavState extends State<SideNav> {
                   icon: Icons.account_balance_wallet_outlined,
                   title: "Accounts",
                   children: [
-                    _buildSubMenuItem("Payments", () {}),
-                    _buildSubMenuItem("Reports", () {}),
+                    _buildSubMenuItem("Approve Payments", () {}),
+                    _buildSubMenuItem("Supplier Ledger", () {}),
+                    _buildSubMenuItem("Customer Ledger", () {}),
                   ],
                 ),
                 ],

@@ -367,9 +367,7 @@ class _ProductScreenState
 
                           fontWeight:
                           FontWeight.w600,
-
                           fontSize: 14,
-
                           color:
                           const Color(
                               0xFF1E293B),
@@ -377,7 +375,6 @@ class _ProductScreenState
                       ),
 
                       subtitle: Text(
-
                         "${p.sku} • Stock: ${p.stock}",
 
                         style:
@@ -392,10 +389,8 @@ class _ProductScreenState
                       ),
 
                       trailing: Row(
-
                         mainAxisSize:
                         MainAxisSize.min,
-
                         children: [
 
                           IconButton(
@@ -406,7 +401,6 @@ class _ProductScreenState
 
                             icon: const Icon(
                               Icons.edit_outlined,
-
                               color:
                               Color(
                                   0xFF64748B),
@@ -414,17 +408,13 @@ class _ProductScreenState
                           ),
 
                           IconButton(
-
                             onPressed: (){
                               deleteProduct(
                                   p.id!);
                             },
-
                             icon: const Icon(
-
                               Icons
                                   .delete_outline_rounded,
-
                               color:
                               Colors.redAccent,
                             ),
