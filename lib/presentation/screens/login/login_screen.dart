@@ -1,6 +1,7 @@
 import 'package:enterprise_resource_planning/data/models/login_request_model.dart';
 import 'package:enterprise_resource_planning/data/repositories/auth_service.dart';
 import 'package:enterprise_resource_planning/presentation/screens/dashboard/AdminLayoutScreen.dart';
+import 'package:enterprise_resource_planning/presentation/screens/login/force_password_change_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -30,22 +31,38 @@ class _LoginScreenState
 
       setState(() => loading = true);
 
+      final response =
       await authService.login(
         LoginRequestModel(
-          userName: emailController.text,
-          userPassword: passwordController.text,
+          userName:
+          emailController.text,
+          userPassword:
+          passwordController.text,
         ),
       );
 
       if (!mounted) return;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-          const AdminLayoutScreen(),
-        ),
-      );
+      if(response.passwordChanged){
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+            const AdminLayoutScreen(),
+          ),
+        );
+
+      } else {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+            const ForcePasswordChangeScreen(),
+          ),
+        );
+      }
 
     } catch (e) {
 

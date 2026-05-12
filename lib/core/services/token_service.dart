@@ -5,6 +5,8 @@ class TokenService {
   static const String tokenKey = "jwt_token";
   static const String roleKey = "user_roles";
   static const String userKey = "current_user";
+  static const String passwordChangedKey =
+      "password_changed";
 
   //save token
   static Future<void> saveToken(String token) async {
@@ -78,4 +80,30 @@ class TokenService {
 
     return prefs.getString(userKey);
   }
+  // save password changed status
+  static Future<void> savePasswordChanged(
+      bool value,
+      ) async {
+
+    final prefs =
+    await SharedPreferences.getInstance();
+
+    await prefs.setBool(
+      passwordChangedKey,
+      value,
+    );
+  }
+
+  // get password changed status
+  static Future<bool> isPasswordChanged() async {
+
+    final prefs =
+    await SharedPreferences.getInstance();
+
+    return prefs.getBool(
+        passwordChangedKey
+    ) ??
+        false;
+  }
+
 }

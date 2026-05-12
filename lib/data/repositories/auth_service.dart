@@ -37,6 +37,11 @@ class AuthService {
       //save role
       await TokenService.saveRoles(authResponse.roles);
 
+      // save password changed status
+      await TokenService.savePasswordChanged(
+        authResponse.passwordChanged,
+      );
+
       //get current user
       final user =
       await UserService.getCurrentUser();

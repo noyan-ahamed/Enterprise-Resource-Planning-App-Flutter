@@ -1,5 +1,6 @@
 import 'package:enterprise_resource_planning/core/services/token_service.dart';
 import 'package:enterprise_resource_planning/presentation/screens/dashboard/AdminLayoutScreen.dart';
+import 'package:enterprise_resource_planning/presentation/screens/login/force_password_change_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -28,13 +29,30 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (loggedIn) {
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-          const AdminLayoutScreen(),
-        ),
-      );
+      final passwordChanged =
+      await TokenService
+          .isPasswordChanged();
+
+      if(passwordChanged){
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+            const AdminLayoutScreen(),
+          ),
+        );
+
+      } else {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+            const ForcePasswordChangeScreen(),
+          ),
+        );
+      }
 
     } else {
 

@@ -4,6 +4,7 @@ import 'package:enterprise_resource_planning/core/services/token_service.dart';
 import 'package:enterprise_resource_planning/data/models/user_model.dart';
 import 'package:enterprise_resource_planning/data/repositories/user_service.dart';
 import 'package:enterprise_resource_planning/presentation/screens/login/login_screen.dart';
+import 'package:enterprise_resource_planning/presentation/screens/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
@@ -188,6 +189,23 @@ class _SideNavState extends State<SideNav> {
                           () => widget.onMenuSelect("submit_payment"),
                     ),
                   ],
+                ),
+                ],
+
+                if(isEmployee() || isAdmin())...[
+                _buildMenuItem(
+                  icon: Icons.person_outline,
+                  title: "My Profile",
+                  onTap: () {
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                        const ProfileScreen(),
+                      ),
+                    );
+                  },
                 ),
                 ],
 

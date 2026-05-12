@@ -4,6 +4,7 @@ import 'package:enterprise_resource_planning/presentation/screens/dashboard_home
 import 'package:enterprise_resource_planning/presentation/screens/department/department_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/designation/designation_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/employee/employee_screen.dart';
+import 'package:enterprise_resource_planning/presentation/screens/login/force_password_change_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/product/product_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/purchase/purchase_screen.dart';
 import 'package:enterprise_resource_planning/presentation/screens/supplier/supplier_screen.dart';
@@ -28,7 +29,7 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
   @override
   void initState() {
     super.initState();
-
+    validatePasswordStatus();
     loadRoles();
   }
   Future<void> loadRoles() async {
@@ -124,6 +125,26 @@ class _AdminLayoutScreen extends State<AdminLayoutScreen> {
         return "Employees";
       default:
         return "Dashboard Overview";
+    }
+  }
+
+
+  Future<void> validatePasswordStatus() async {
+
+    final changed =
+    await TokenService
+        .isPasswordChanged();
+
+    if(!changed && mounted){
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+          const ForcePasswordChangeScreen(),
+        ),
+            (route) => false,
+      );
     }
   }
 
