@@ -8,8 +8,12 @@ import '../../../data/repositories/product_service.dart';
 import '../../../data/repositories/purchase_service.dart';
 import '../../../data/repositories/supplier_service.dart';
 
-class PurchaseDialog extends StatefulWidget {
+import 'payment_terms_dropdown.dart';
+import 'purchase_item_row.dart';
+import 'purchase_summary.dart';
+import 'supplier_selector.dart';
 
+class PurchaseDialog extends StatefulWidget {
   const PurchaseDialog({super.key});
 
   @override
@@ -31,6 +35,8 @@ class _PurchaseDialogState
 
   bool loading = true;
 
+  bool creating = false;
+
   List<SupplierModel> suppliers = [];
 
   List<ProductModel> products = [];
@@ -45,9 +51,7 @@ class _PurchaseDialogState
 
   @override
   void initState() {
-
     super.initState();
-
     loadData();
   }
 
@@ -61,20 +65,13 @@ class _PurchaseDialogState
       final productData =
       await productService.getProducts();
 
-      setState(() {
+      suppliers = supplierData;
 
-        suppliers = supplierData;
-
-        products = productData;
-
-        loading = false;
-      });
+      products = productData;
 
       addItem();
 
-    } catch(e){
-
-      setState(() => loading = false);
+    } catch (e) {
 
       if(mounted){
 
@@ -84,27 +81,37 @@ class _PurchaseDialogState
           text: "Failed to load data",
         );
       }
+
+    } finally {
+
+      if(mounted){
+        setState(() => loading = false);
+      }
     }
   }
 
   void addItem(){
 
-    items.add({
+    setState(() {
 
-      "product": null,
-      "quantity": 1,
-      "unit": "Pcs",
-      "unitPrice": 0.0,
+      items.add({
+
+        "product": null,
+        "quantity": 1,
+        "unit": "Pcs",
+        "unitPrice": 0.0,
+      });
     });
-
-    setState(() {});
   }
 
   void removeItem(int index){
 
-    items.removeAt(index);
+    setState(() {
 
-    calculateTotal();
+      items.removeAt(index);
+
+      calculateTotal();
+    });
   }
 
   void calculateTotal(){
@@ -118,9 +125,7 @@ class _PurchaseDialogState
               (item["unitPrice"] ?? 0);
     }
 
-    setState(() {
-      totalAmount = total;
-    });
+    totalAmount = total;
   }
 
   Future<void> createPurchase() async {
@@ -141,7 +146,7 @@ class _PurchaseDialogState
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
-        text: "Add at least one product",
+        text: "Add product",
       );
 
       return;
@@ -161,15 +166,13 @@ class _PurchaseDialogState
       }
     }
 
+    setState(() => creating = true);
+
     final body = {
 
       "supplierId": selectedSupplier!.id,
 
       "paymentTerms": paymentTerms,
-
-      "status": "PENDING",
-
-      "totalAmount": totalAmount,
 
       "items": items.map((e){
 
@@ -188,50 +191,42 @@ class _PurchaseDialogState
       }).toList(),
     };
 
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.loading,
-      text: "Creating Purchase...",
-    );
-
     try {
 
       final success =
       await purchaseService.createPurchase(body);
 
-      if(mounted){
+      if(!mounted) return;
 
-        Navigator.pop(context);
+      if(success){
 
-        if(success){
+        Navigator.pop(context, true);
 
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.success,
-            text: "Purchase Created",
-          );
+      } else {
 
-          Navigator.pop(context, true);
-
-        } else {
-
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            text: "Creation failed",
-          );
-        }
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          text: "Purchase creation failed",
+        );
       }
 
     } catch(e){
 
-      Navigator.pop(context);
+      if(mounted){
 
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        text: "Something went wrong",
-      );
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          text: "Something went wrong",
+        );
+      }
+
+    } finally {
+
+      if(mounted){
+        setState(() => creating = false);
+      }
     }
   }
 
@@ -246,16 +241,14 @@ class _PurchaseDialogState
 
       child: Container(
 
-        width: 900,
+        width: 950,
 
         padding: const EdgeInsets.all(20),
 
         child: loading
 
             ? const SizedBox(
-
           height: 300,
-
           child: Center(
             child: CircularProgressIndicator(),
           ),
@@ -275,37 +268,19 @@ class _PurchaseDialogState
                 "Create Purchase",
 
                 style: GoogleFonts.inter(
-                  fontSize: 22,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              DropdownButtonFormField<SupplierModel>(
+              SupplierSelector(
 
-                value: selectedSupplier,
+                suppliers: suppliers,
 
-                decoration: InputDecoration(
-
-                  labelText: "Supplier",
-
-                  border: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(12),
-                  ),
-                ),
-
-                items: suppliers.map((s){
-
-                  return DropdownMenuItem(
-
-                    value: s,
-
-                    child: Text(s.name),
-                  );
-
-                }).toList(),
+                selectedSupplier:
+                selectedSupplier,
 
                 onChanged: (v){
 
@@ -317,34 +292,9 @@ class _PurchaseDialogState
 
               const SizedBox(height: 16),
 
-              DropdownButtonFormField<String>(
+              PaymentTermsDropdown(
 
                 value: paymentTerms,
-
-                decoration: InputDecoration(
-
-                  labelText: "Payment Terms",
-
-                  border: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(12),
-                  ),
-                ),
-
-                items: [
-
-                  "7 Days",
-                  "15 Days",
-                  "30 Days",
-
-                ].map((e){
-
-                  return DropdownMenuItem(
-                    value: e,
-                    child: Text(e),
-                  );
-
-                }).toList(),
 
                 onChanged: (v){
 
@@ -365,7 +315,7 @@ class _PurchaseDialogState
 
                   Text(
 
-                    "Items",
+                    "Purchase Items",
 
                     style: GoogleFonts.inter(
                       fontSize: 18,
@@ -379,251 +329,41 @@ class _PurchaseDialogState
 
                     icon: const Icon(Icons.add),
 
-                    label: const Text("Add Product"),
+                    label:
+                    const Text("Add Product"),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
               ...List.generate(items.length, (index){
 
-                final item = items[index];
+                return PurchaseItemRow(
 
-                return Container(
+                  item: items[index],
 
-                  margin:
-                  const EdgeInsets.only(bottom: 16),
+                  products: products,
 
-                  padding: const EdgeInsets.all(16),
+                  index: index,
 
-                  decoration: BoxDecoration(
+                  onChanged: (){
 
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                    ),
+                    calculateTotal();
 
-                    borderRadius:
-                    BorderRadius.circular(16),
-                  ),
+                    setState(() {});
+                  },
 
-                  child: Column(
-
-                    children: [
-
-                      DropdownButtonFormField<ProductModel>(
-
-                        value: item["product"],
-
-                        decoration: InputDecoration(
-
-                          labelText: "Product",
-
-                          border: OutlineInputBorder(
-                            borderRadius:
-                            BorderRadius.circular(12),
-                          ),
-                        ),
-
-                        items: products.map((p){
-
-                          return DropdownMenuItem(
-
-                            value: p,
-
-                            child: Text(p.name),
-                          );
-
-                        }).toList(),
-
-                        onChanged: (v){
-
-                          setState(() {
-                            item["product"] = v;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Row(
-
-                        children: [
-
-                          Expanded(
-
-                            child: TextFormField(
-
-                              initialValue:
-                              item["quantity"]
-                                  .toString(),
-
-                              keyboardType:
-                              TextInputType.number,
-
-                              decoration: InputDecoration(
-
-                                labelText: "Qty",
-
-                                border:
-                                OutlineInputBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(
-                                      12),
-                                ),
-                              ),
-
-                              onChanged: (v){
-
-                                item["quantity"] =
-                                    int.tryParse(v) ?? 1;
-
-                                calculateTotal();
-                              },
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          Expanded(
-
-                            child:
-                            DropdownButtonFormField<String>(
-
-                              value: item["unit"],
-
-                              decoration: InputDecoration(
-
-                                labelText: "Unit",
-
-                                border:
-                                OutlineInputBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(
-                                      12),
-                                ),
-                              ),
-
-                              items: [
-
-                                "Pcs",
-                                "Kg",
-                                "Box",
-
-                              ].map((e){
-
-                                return DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e),
-                                );
-
-                              }).toList(),
-
-                              onChanged: (v){
-
-                                item["unit"] = v;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Row(
-
-                        children: [
-
-                          Expanded(
-
-                            child: TextFormField(
-
-                              initialValue:
-                              item["unitPrice"]
-                                  .toString(),
-
-                              keyboardType:
-                              const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-
-                              decoration: InputDecoration(
-
-                                labelText: "Unit Price",
-
-                                prefixText: "৳ ",
-
-                                border:
-                                OutlineInputBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(
-                                      12),
-                                ),
-                              ),
-
-                              onChanged: (v){
-
-                                item["unitPrice"] =
-                                    double.tryParse(v)
-                                        ?? 0;
-
-                                calculateTotal();
-                              },
-                            ),
-                          ),
-
-                          IconButton(
-
-                            onPressed: (){
-                              removeItem(index);
-                            },
-
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      Align(
-
-                        alignment:
-                        Alignment.centerRight,
-
-                        child: Text(
-
-                          "Subtotal: ৳ ${((item["quantity"] ?? 0) * (item["unitPrice"] ?? 0)).toStringAsFixed(2)}",
-
-                          style: GoogleFonts.inter(
-                            fontWeight:
-                            FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  onDelete: (){
+                    removeItem(index);
+                  },
                 );
               }),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
-              Align(
-
-                alignment: Alignment.centerRight,
-
-                child: Text(
-
-                  "Total: ৳ ${totalAmount.toStringAsFixed(2)}",
-
-                  style: GoogleFonts.inter(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
+              PurchaseSummary(
+                totalAmount: totalAmount,
               ),
 
               const SizedBox(height: 24),
@@ -634,28 +374,36 @@ class _PurchaseDialogState
 
                 child: ElevatedButton(
 
-                  onPressed: createPurchase,
+                  onPressed:
+                  creating ? null : createPurchase,
 
                   style: ElevatedButton.styleFrom(
 
                     backgroundColor:
                     const Color(0xFF6366F1),
 
-                    foregroundColor: Colors.white,
+                    foregroundColor:
+                    Colors.white,
 
                     padding:
                     const EdgeInsets.symmetric(
                       vertical: 16,
                     ),
-
-                    shape:
-                    RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(14),
-                    ),
                   ),
 
-                  child: const Text(
+                  child: creating
+
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child:
+                    CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+
+                      : const Text(
                     "Create Purchase",
                   ),
                 ),
