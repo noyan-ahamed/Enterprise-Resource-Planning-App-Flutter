@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:enterprise_resource_planning/core/config/app_config.dart';
 import 'package:enterprise_resource_planning/core/services/api_client.dart';
 import 'package:enterprise_resource_planning/data/models/employee_model.dart';
 
@@ -40,7 +41,8 @@ class EmployeeService {
       jsonEncode(employee.toJson()),
     );
 
-    if(response.statusCode == 200){
+    if(response.statusCode == 200 ||
+        response.statusCode == 201){
 
       return EmployeeModel.fromJson(
         jsonDecode(response.body),
@@ -60,7 +62,8 @@ class EmployeeService {
       jsonEncode(employee.toJson()),
     );
 
-    if(response.statusCode == 200){
+    if(response.statusCode == 200 ||
+        response.statusCode == 204){
 
       return EmployeeModel.fromJson(
         jsonDecode(response.body),
